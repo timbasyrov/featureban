@@ -21,8 +21,12 @@ namespace Featureban.Domain
 
         public bool IsBlocked => State == WorkItemState.Blocked;
 
-        public void Block() => State = WorkItemState.Blocked;
+        public bool IsAvailable => State == WorkItemState.Available;
 
-        public void Unblock() => State = WorkItemState.Available;
+        public bool IsComplete => Status == WorkItemStatus.Complete;
+
+        public void ChangeStatusTo(WorkItemStatus status) => Status = status;
+
+        public void ChangeStateTo(WorkItemState state) => State = state;
     }
 }

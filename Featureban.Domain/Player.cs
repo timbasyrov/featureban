@@ -2,6 +2,7 @@
 using System.Linq;
 using Featureban.Domain.Common;
 using Featureban.Domain.Enums;
+using static Featureban.Domain.Enums.WorkItemState;
 
 namespace Featureban.Domain
 {
@@ -21,19 +22,54 @@ namespace Featureban.Domain
 
         public CoinFlipResult FlipCoin() => _coin.Flip();
 
-        public void BlockWorkItem(WorkItem workItem) => workItem.ChangeStateTo(WorkItemState.Blocked);
+        public void BlockWorkItem(WorkItem workItem) => workItem.ChangeStateTo(Blocked);
 
-        public void UnblockWorkItem(WorkItem workItem) => workItem.ChangeStateTo(WorkItemState.Available);
+        public void UnblockWorkItem(WorkItem workItem) => workItem.ChangeStateTo(Available);
 
-        private bool TryTakeNewWorkItem() => _board.TryAssignWorkItemTo(this);
+        public bool TryTakeNewWorkItem() => _board.TryAssignWorkItemTo(this);
 
-        private bool TryMoveWorkItemRight(WorkItem workItem) => _board.TryMoveWorkItemRight(workItem);
+        private bool TryMoveOrUnblockWorkItem(IReadOnlyList<WorkItem> workItems)
+        {
+            if (workItems
+                .Where(_ => _.IsAvailable && !_.IsComplete)
+                .Any(item => _board.TryMoveWorkItemRight(item)))
+                return true;
 
-        private bool TryHelp() => _board
-                .GetOtherPlayersWorkItemsFor(this)
-                .Any(item => _board.TryMoveWorkItemRight(item));
+            var blockedWorkItem = workItems.FirstOrDefault(_ => _.IsBlocked);
+            if (blockedWorkItem == null)
+                return false;
 
-        public IReadOnlyList<WorkItem> GetWorkItems(WorkItemStatus status) =>
-            _board.GetWorkItemsFor(this).Where(_ => _.Status == status).ToList().AsReadOnly();
+            UnblockWorkItem(blockedWorkItem);
+            return true;
+
+        }
+
+        public IReadOnlyList<WorkItem> GetWorkItems() => _board.GetWorkItemsFor(this);
+
+        public IReadOnlyList<WorkItem> GetBlockedWorkItems() => GetWorkItems().Where(_ => _.IsBlocked).ToList().AsReadOnly();
+        public IReadOnlyList<WorkItem> GetAvailableWorkItems() => GetWorkItems().Where(_ => _.IsAvailable).ToList().AsReadOnly();
+
+        public void MakeMove(CoinFlipResult coinFlipResult)
+        {
+            if (coinFlipResult == CoinFlipResult.Tail)
+            {                
+                if (TryMoveOrUnblockWorkItem(GetWorkItems()))
+                    return;
+
+                if (TryTakeNewWorkItem())
+                    return;
+                
+                // Try to help other player
+                TryMoveOrUnblockWorkItem(_board.GetOtherPlayersWorkItemsFor(this));
+                return;
+            }
+
+            var availableWorkItem = GetWorkItems().FirstOrDefault(_ => _.IsAvailable && !_.IsComplete);
+            if (availableWorkItem == null)
+                return;
+
+            BlockWorkItem(availableWorkItem);
+            TryTakeNewWorkItem();
+        }
     }
 }

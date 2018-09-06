@@ -26,13 +26,13 @@ namespace Featureban.Domain
 
         public void UnblockWorkItem(WorkItem workItem) => workItem.ChangeStateTo(Available);
 
-        public bool TryTakeNewWorkItem() => _board.TryAssignWorkItemTo(this);
+        public bool TryTakeNewWorkItem() => _board.TryAssignNewWorkItemTo(this);
 
         private bool TryMoveOrUnblockWorkItem(IReadOnlyList<WorkItem> workItems)
         {
             if (workItems
                 .Where(_ => _.IsAvailable && !_.IsComplete)
-                .Any(item => _board.TryMoveWorkItemRight(item)))
+                .Any(item => _board.TryMoveWorkItem(item)))
                 return true;
 
             var blockedWorkItem = workItems.FirstOrDefault(_ => _.IsBlocked);
@@ -41,7 +41,6 @@ namespace Featureban.Domain
 
             UnblockWorkItem(blockedWorkItem);
             return true;
-
         }
 
         public IReadOnlyList<WorkItem> WorkItems => _board.GetWorkItemsFor(this);

@@ -19,21 +19,21 @@ namespace Featureban.Domain
             _workItems = new List<WorkItem>();
         }
 
-        public bool TryAssignWorkItemTo(Player player)
+        public bool TryAssignNewWorkItemTo(Player player)
         {
             if (player == null)
                 throw new ArgumentNullException(nameof(player), "WorkItem must be assigned to player");
 
-            if (IsWipLimitReachedFor(WorkItemStatus.InDevelopment))
+            if (IsWipLimitReachedFor(WorkItemStatus.Todo.Next()))
                 return false;
             
             var workItem = new WorkItem(player);
-            workItem.ChangeStatusTo(WorkItemStatus.InDevelopment);
+            workItem.ChangeStatusTo(WorkItemStatus.Todo.Next());
             _workItems.Add(workItem);
             return true;
         }
 
-        public bool TryMoveWorkItemRight(WorkItem workItem)
+        public bool TryMoveWorkItem(WorkItem workItem)
         {
             if (workItem.IsComplete)
                 throw new InvalidOperationException("Can't move completed work item");

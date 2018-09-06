@@ -56,7 +56,7 @@ namespace Featureban.Domain
         {
             foreach (var player in _players)
             {
-                _board.TryAssignWorkItemTo(player);
+                _board.TryAssignNewWorkItemTo(player);
             }
         }
     }

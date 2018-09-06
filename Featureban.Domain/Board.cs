@@ -55,24 +55,14 @@ namespace Featureban.Domain
             return _workItems.Count(_ => _.Status == status) == WipLimit;
         }
 
-        public void BlockWorkItem(WorkItem workItem)
-        {
-            workItem.ChangeStateTo(WorkItemState.Blocked);
-        }
-
-        public void UnblockWorkItem(WorkItem workItem)
-        {
-            workItem.ChangeStateTo(WorkItemState.Available);
-        }
-
         public IReadOnlyList<WorkItem> GetOtherPlayersWorkItemsFor(Player player)
         {
-            return WorkItems.Where(_ => _.Player != this && _.IsAvailable).ToList().AsReadOnly();
+            return _workItems.Where(_ => _.Player != this).ToList().AsReadOnly();
         }
 
         public IReadOnlyList<WorkItem> GetWorkItemsFor(Player player)
         {
-            return WorkItems.Where(_ => _.Player == player).ToList().AsReadOnly();
+            return _workItems.Where(_ => _.Player == player).ToList().AsReadOnly();
         }
     }
 }

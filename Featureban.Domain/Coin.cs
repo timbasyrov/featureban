@@ -1,5 +1,6 @@
 ﻿using System;
 using Featureban.Domain.Common;
+using Featureban.Domain.Enums;
 
 namespace Featureban.Domain
 {

@@ -44,16 +44,15 @@ namespace Featureban.Domain
 
         }
 
-        public IReadOnlyList<WorkItem> GetWorkItems() => _board.GetWorkItemsFor(this);
-
-        public IReadOnlyList<WorkItem> GetBlockedWorkItems() => GetWorkItems().Where(_ => _.IsBlocked).ToList().AsReadOnly();
-        public IReadOnlyList<WorkItem> GetAvailableWorkItems() => GetWorkItems().Where(_ => _.IsAvailable).ToList().AsReadOnly();
+        public IReadOnlyList<WorkItem> WorkItems => _board.GetWorkItemsFor(this);
+        public IReadOnlyList<WorkItem> BlockedWorkItems => WorkItems.Where(_ => _.IsBlocked).ToList().AsReadOnly();
+        public IReadOnlyList<WorkItem> AvailableWorkItems => WorkItems.Where(_ => _.IsAvailable).ToList().AsReadOnly();
 
         public void MakeMove(CoinFlipResult coinFlipResult)
         {
             if (coinFlipResult == CoinFlipResult.Tail)
             {                
-                if (TryMoveOrUnblockWorkItem(GetWorkItems()))
+                if (TryMoveOrUnblockWorkItem(WorkItems))
                     return;
 
                 if (TryTakeNewWorkItem())
@@ -64,7 +63,7 @@ namespace Featureban.Domain
                 return;
             }
 
-            var availableWorkItem = GetWorkItems().FirstOrDefault(_ => _.IsAvailable && !_.IsComplete);
+            var availableWorkItem = WorkItems.FirstOrDefault(_ => _.IsAvailable && !_.IsComplete);
             if (availableWorkItem == null)
                 return;
 

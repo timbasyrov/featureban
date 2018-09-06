@@ -38,12 +38,10 @@ namespace Featureban.Domain
             if (workItem.IsComplete)
                 throw new InvalidOperationException("Can't move completed work item");
 
-            var workItemNextStatus = workItem.Status + 1;
-
-            if (IsWipLimitReachedFor(workItemNextStatus))
+            if (IsWipLimitReachedFor(workItem.Status.Next()))
                 return false;
 
-            workItem.ChangeStatusTo(workItemNextStatus);
+            workItem.ChangeStatusTo(workItem.Status.Next());
             return true;
         }
 

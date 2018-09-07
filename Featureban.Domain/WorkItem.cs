@@ -10,13 +10,12 @@ namespace Featureban.Domain
 
         public WorkItemStatus Status { get; private set; }
 
-        public Player Player { get; }
+        public Player Player { get; private set; }
 
-        public WorkItem(Player player)
+        public WorkItem(WorkItemState state, WorkItemStatus status)
         {
-            Player = player ?? throw new ArgumentNullException(nameof(player));
-            State = WorkItemState.Available;
-            Status = WorkItemStatus.Todo;
+            State = state;
+            Status = status;
         }
 
         public bool IsBlocked => State == WorkItemState.Blocked;
@@ -28,5 +27,7 @@ namespace Featureban.Domain
         public void ChangeStatusTo(WorkItemStatus status) => Status = status;
 
         public void ChangeStateTo(WorkItemState state) => State = state;
+
+        public void AssignToPlayer(Player player) => Player = player ?? throw new ArgumentNullException();
     }
 }

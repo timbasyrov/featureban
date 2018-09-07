@@ -12,11 +12,13 @@ namespace Featureban.Domain
         public uint WipLimit { get; }
 
         private readonly List<WorkItem> _workItems;
+        private readonly Backlog _backlog;
 
         public Board(uint wipLimit)
         {
             WipLimit = wipLimit;
             _workItems = new List<WorkItem>();
+            _backlog = new Backlog();
         }
 
         public bool TryAssignNewWorkItemTo(Player player)
@@ -26,9 +28,10 @@ namespace Featureban.Domain
 
             if (IsWipLimitReachedFor(WorkItemStatus.Todo.Next()))
                 return false;
-            
-            var workItem = new WorkItem(player);
+
+            var workItem = _backlog.CreateNewWorkItem();
             workItem.ChangeStatusTo(WorkItemStatus.Todo.Next());
+            workItem.AssignToPlayer(player);
             _workItems.Add(workItem);
             return true;
         }

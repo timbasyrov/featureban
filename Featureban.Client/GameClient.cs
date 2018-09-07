@@ -49,7 +49,7 @@ namespace Featureban.Client
 
             Console.WriteLine("Done");
             OutputGameResults(gameResults, gamesCount, wipLimits);
-            Console.ReadKey();
+            Console.ReadLine();
         }
 
         private static IEnumerable<string> CreatePlayers(int count)
